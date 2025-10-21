@@ -8,7 +8,8 @@ sys.path.append(str(ROOT))  # rend 'models/' importable partout
 # On importe ton vrai script Streamlit :
 import importlib.util
 
-script_path = ROOT / "views" / "main-national-view.py"
+script_path = ROOT / "views" / "main-dashboard-view.py"
 spec = importlib.util.spec_from_file_location("main_national_view", script_path)
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
+
