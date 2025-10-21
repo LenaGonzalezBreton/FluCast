@@ -1,7 +1,7 @@
 # views/main-dashboard-view.py
 # ─────────────────────────────────────────────────────────────────────────────
 # Vue unifiée : France / Grand Est — Prophet only
-# Esthétique : accent #49C81B + logo ; carte en YlOrRd (nuances d’orange)
+# Esthétique : accent #49C81B + logo (header) ; carte YlOrRd ; mode Clair/Sombre
 # ─────────────────────────────────────────────────────────────────────────────
 
 import json
@@ -23,7 +23,7 @@ except Exception:
     app_national = None
 
 # -----------------------------
-# CONFIG GLOBALE (accent + page)
+# CONFIG GLOBALE
 # -----------------------------
 ACCENT_COLOR = "#49C81B"
 st.set_page_config(
@@ -33,41 +33,12 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Thème CSS léger (accent sur tabs/metrics/boutons)
-st.markdown(
-    f"""
-    <style>
-    :root {{
-        --accent: {ACCENT_COLOR};
-    }}
-    .stTabs [data-baseweb="tab-list"] button[aria-selected="true"] {{
-        border-bottom: 3px solid var(--accent);
-        color: var(--accent);
-    }}
-    div[data-testid="stMetricValue"] {{
-        color: var(--accent);
-    }}
-    .stButton>button {{
-        background-color: var(--accent);
-        color: white !important;
-        border: none;
-        border-radius: 6px;
-    }}
-    .stButton>button:hover {{
-        background-color: #3aaa17;
-        transition: background-color 0.2s ease-in-out;
-    }}
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
 # -----------------------------
-# CONSTANTES FICHIERS
+# CONSTANTES
 # -----------------------------
 NATIONAL_CSV = Path("data/clean-data/donnees_analytiques_france.csv")
 REGIONAL_CSV = Path("data/clean-data/donnees_analytiques_grand_est.csv")
-DEFAULT_LOGO = Path("data/assets/logo.png")  # place ton logo ici (ou change via la sidebar)
+DEFAULT_LOGO = Path("data/assets/logo.png")  # logo par défaut (modifiable dans la sidebar)
 
 # -----------------------------
 # HELPERS
@@ -82,7 +53,7 @@ def coerce_schema(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     mapping = {}
     fallback = {
-        "code_departement": ["dep", "code_dep", "departement_code", "departement"],
+        "code_departement": ["dep", "code_dep", "departement_code", "departement", "code"],
         "nom_departement": ["nom", "departement_nom", "libelle_departement"],
         "annee_semaine": ["semaine", "week", "year_week"],
         "total_cas_semaine": ["total_cas", "nb_cas", "cas_total"]
@@ -145,9 +116,61 @@ def load_geojson() -> Optional[dict]:
     return None
 
 # -----------------------------
-# SIDEBAR (vue + data + logo)
+# SIDEBAR
 # -----------------------------
 st.sidebar.title("⚙️ Paramètres")
+
+# Thème clair / sombre (par défaut clair)
+theme_choice = st.sidebar.radio("Thème", ("Clair", "Sombre"), index=0)
+
+# Applique le thème (CSS + Plotly + Mapbox)
+if theme_choice == "Clair":
+    # CSS clair
+    st.markdown(
+        f"""
+        <style>
+        :root {{ --accent: {ACCENT_COLOR}; }}
+        .stApp {{ background-color: #ffffff; color: #111827; }}
+        .stTabs [data-baseweb="tab-list"] button[aria-selected="true"] {{
+            border-bottom: 3px solid var(--accent);
+            color: var(--accent);
+        }}
+        div[data-testid="stMetricValue"] {{ color: var(--accent); }}
+        .stButton>button {{
+            background-color: var(--accent); color: white !important;
+            border: none; border-radius: 6px;
+        }}
+        .stButton>button:hover {{ background-color: #3aaa17; transition: background-color .2s; }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    px.defaults.template = "plotly"          # clair
+    MAPBOX_STYLE = "carto-positron"          # clair
+else:
+    st.markdown(
+        f"""
+        <style>
+        :root {{ --accent: {ACCENT_COLOR}; }}
+        .stApp {{ background-color: #0f172a; color: #f8fafc; }}
+        .stTabs [data-baseweb="tab-list"] button[aria-selected="true"] {{
+            border-bottom: 3px solid var(--accent);
+            color: var(--accent);
+        }}
+        div[data-testid="stMetricValue"] {{ color: var(--accent); }}
+        .stButton>button {{
+            background-color: var(--accent); color: white !important;
+            border: none; border-radius: 6px;
+        }}
+        .stButton>button:hover {{ background-color: #3aaa17; transition: background-color .2s; }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    px.defaults.template = "plotly_dark"     # sombre
+    MAPBOX_STYLE = "carto-darkmatter"        # sombre
+
+st.sidebar.markdown("---")
 
 vue = st.sidebar.radio(
     "Vue",
@@ -163,7 +186,8 @@ st.sidebar.caption("Par défaut : data/clean-data/donnees_analytiques_*.csv")
 
 st.sidebar.markdown("---")
 logo_path_str = st.sidebar.text_input("Logo (PNG/JPG)", value=str(DEFAULT_LOGO))
-show_logo_sidebar = st.sidebar.checkbox("Afficher aussi le logo dans la sidebar", value=False)
+
+# 🔥 NOTE : aucune case “afficher aussi le logo dans la sidebar” — supprimée.
 
 # -----------------------------
 # PIPELINE PROPHET
@@ -196,18 +220,14 @@ logo_path = Path(logo_path_str)
 with hdr_col_logo:
     if logo_path.exists():
         try:
-            # Streamlit >= 1.29
-            st.logo(str(logo_path))
+            st.logo(str(logo_path))  # Streamlit >= 1.29
         except Exception:
             st.image(str(logo_path), use_container_width=True)
-    elif show_logo_sidebar:
+    else:
         st.info("Logo introuvable au chemin indiqué.")
 
 with hdr_col_title:
     st.title("🌡️ Thermomètre Grippal Prédictif — Vue unifiée (Prophet)")
-
-if show_logo_sidebar and logo_path.exists():
-    st.sidebar.image(str(logo_path), use_container_width=True)
 
 if df_full.empty or df_display.empty:
     st.error("Aucune donnée exploitable.")
@@ -234,16 +254,15 @@ with tab1:
 
     if geojson is not None:
         map_df = df_display.dropna(subset=["score_global_predictif"]).copy()
-        # Couleurs : YlOrRd (nuances d’orange) — demandé
         fig = px.choropleth_mapbox(
             map_df,
             geojson=geojson,
             locations="code_departement",
             featureidkey="properties.code",
             color="score_global_predictif",
-            color_continuous_scale="YlOrRd",
+            color_continuous_scale="YlOrRd",  # ✅ nuances d’orange conservées
             range_color=(0, 1),
-            mapbox_style="carto-positron",
+            mapbox_style=MAPBOX_STYLE,        # clair/sombre selon le thème
             zoom=4.8 if vue.startswith("🇫🇷") else 6.5,
             center={"lat": 46.6, "lon": 2.4} if vue.startswith("🇫🇷") else {"lat": 48.6, "lon": 6.1},
             opacity=0.75,
@@ -344,22 +363,19 @@ with tab4:
 Ce projet a été réalisé dans le cadre du **Hackathon Santé Datalab x EPITECH**.
 
 ### 🎯 Objectif
-Développer un outil d’aide à la décision pour **anticiper les zones de tension** grippales
-et **optimiser la distribution des vaccins** et ressources médicales.
+Anticiper les **zones de tension grippale** et aider à la **répartition des vaccins** en temps réel.
 
 ### 🧠 Méthodologie
-- **Prophet** pour la prévision des cas hebdomadaires (saisonnalité annuelle).
-- **Score de tension** = combinaison pondérée entre **cas prédits (S+1)** et **vulnérabilité vaccinale**.
-- Visualisation interactive en **Streamlit + Plotly**, code Python pur.
+- Modélisation **Prophet** par département.
+- Score global basé sur les cas prédits et la vulnérabilité vaccinale.
+- Visualisation interactive via **Streamlit + Plotly**.
 
-### 🗺️ Fonctionnalités
-- Carte de tension **en nuances d’orange (YlOrRd)**, cohérente avec vos usages.
-- Esthétique du site alignée sur la couleur d'accent **{ACCENT_COLOR}**.
-- Analyses détaillées par **département** et **région**.
-- Export CSV pour un partage rapide des données.
+### 🎨 Identité visuelle
+- Accent couleur : **{ACCENT_COLOR}**
+- Carte : **nuances d’orange (YlOrRd)** cohérentes avec l’indicateur de tension.
+- Logo en-tête (modifiable via la sidebar). Mode **{theme_choice.lower()}** actif.
 
 ### ⚙️ Technique
-- Python 3.11, Prophet, Pandas, Plotly, Streamlit.
-- Exécution : `streamlit run views/main-dashboard-view.py`
-- Logo : modifiable via la **sidebar** (PNG/JPG).
+- Python 3.11 · Prophet · Pandas · Plotly · Streamlit
+- Lancement : `streamlit run views/main-dashboard-view.py`
     """)
