@@ -1,0 +1,10 @@
+code_departement,nom_departement,annee_semaine,population_totale,population_plus_65_ans,pct_plus_65_ans,densite_population,couv_vacc_grippe_an_passe,cas_urgences_semaine,cas_sos_medecins_semaine,total_cas_semaine,cas_predits_semaine_suivante,tendance_evolution_cas,score_global_predictif
+57,Moselle,2025-41,1045000,219450,0.21,167,0.52,35,15,50,65,0.0,0.45
+57,Moselle,2025-42,1045000,219450,0.21,167,0.52,55,25,80,110,0.6,0.68
+57,Moselle,2025-43,1045000,219450,0.21,167,0.52,90,40,130,180,0.63,0.85
+54,Meurthe-et-Moselle,2025-41,733000,153930,0.21,139,0.55,28,12,40,50,0.0,0.38
+54,Meurthe-et-Moselle,2025-42,733000,153930,0.21,139,0.55,45,20,65,85,0.63,0.55
+54,Meurthe-et-Moselle,2025-43,733000,153930,0.21,139,0.55,70,35,105,140,0.62,0.76
+88,Vosges,2025-41,364000,80080,0.22,62,0.54,15,7,22,30,0.0,0.25
+88,Vosges,2025-42,364000,80080,0.22,62,0.54,25,10,35,45,0.59,0.42
+88,Vosges,2025-43,364000,80080,0.22,62,0.54,40,18,58,75,0.66,0.61

@@ -1,0 +1,16 @@
+# Core dependencies avec versions fixes
+prophet==1.1.5
+cmdstanpy==1.2.4
+streamlit==1.38.0
+pandas==2.2.2
+requests==2.32.3
+plotly==5.24.1
+
+# Prophet dependencies
+numpy>=1.15.4,<2.0
+matplotlib>=2.0
+LunarCalendar>=0.0.9
+convertdate>=2.1.2
+holidays>=0.25
+python-dateutil>=2.8.0
+tqdm>=4.36.1
