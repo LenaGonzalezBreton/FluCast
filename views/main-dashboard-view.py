@@ -28,7 +28,7 @@ except Exception:
 ACCENT_COLOR = "#49C81B"
 st.set_page_config(
     page_title="Thermomètre Grippal Prédictif",
-    page_icon="🌡️",
+    page_icon=DEFAULT_LOGO,
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -388,4 +388,5 @@ Anticiper les **zones de tension grippale** et aider à la **répartition des va
  - https://www.linkedin.com/in/lenagonzalezbreton/
 
     """)
+
 
