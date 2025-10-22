@@ -3,7 +3,7 @@
 # Vue unifiée : France / Grand Est — Prophet only
 # Esthétique : accent #49C81B + logo (header) ; carte YlOrRd ; mode Clair/Sombre
 # ─────────────────────────────────────────────────────────────────────────────
-
+import base64
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -388,13 +388,12 @@ Anticiper les **zones de tension grippale** et aider à la **répartition des va
 
 ###  Identité visuelle
 - Accent couleur : **{ACCENT_COLOR}**
-- Carte : **nuances d’orange (YlOrRd)** cohérentes avec l’indicateur de tension.
+- Carte : **nuances d'orange (YlOrRd)** cohérentes avec l'indicateur de tension.
 - Logo en-tête (modifiable via la sidebar). Mode **{theme_choice.lower()}** actif.
 
 ###  Technique
 - Python 3.11 · Prophet · Pandas · Plotly · Streamlit
 - Lancement : `streamlit run views/main-dashboard-view.py`
-
 
 ###  L'équipe 
  - https://www.linkedin.com/in/axel-momper
@@ -402,8 +401,19 @@ Anticiper les **zones de tension grippale** et aider à la **répartition des va
  - https://www.linkedin.com/in/alexy-pinto-3b4765301/
  - https://www.linkedin.com/in/maxence-noizet-2a4a2526b/
  - https://www.linkedin.com/in/lenagonzalezbreton/
-
     """)
+
+    pdf_path = Path("data/presentation_flucast.pdf")
+
+    if pdf_path.exists():
+        with open(pdf_path, "rb") as f:
+            base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+
+        # Créer un lien qui ouvre le PDF encodé en base64
+        pdf_link = f'<a href="data:application/pdf;base64,{base64_pdf}" target="_blank">📄 Ouvrir la présentation PowerPoint en format PDF</a>'
+        st.markdown(pdf_link, unsafe_allow_html=True)
+    else:
+        st.error("Le fichier PDF est introuvable.")
 
 
 
