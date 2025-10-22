@@ -28,7 +28,7 @@ except Exception:
 ACCENT_COLOR = "#49C81B"
 st.set_page_config(
     page_title="Thermomètre Grippal Prédictif",
-    page_icon=DEFAULT_LOGO,
+    page_icon=Path("data/assets/Logo icon app.svg"),
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -119,7 +119,7 @@ def load_geojson() -> Optional[dict]:
 # -----------------------------
 # SIDEBAR
 # -----------------------------
-st.sidebar.title("⚙️ Paramètres")
+st.sidebar.title("Paramètres")
 
 # Thème clair / sombre (par défaut clair)
 theme_choice = st.sidebar.radio("Thème", ("Clair", "Sombre"), index=0)
@@ -389,6 +389,7 @@ Anticiper les **zones de tension grippale** et aider à la **répartition des va
  - https://www.linkedin.com/in/lenagonzalezbreton/
 
     """)
+
 
 
 
