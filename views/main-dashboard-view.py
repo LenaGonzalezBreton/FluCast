@@ -109,7 +109,7 @@ def load_geojson() -> Optional[dict]:
 # -----------------------------
 st.sidebar.title("Paramètres")
 # Thème clair / sombre (par défaut clair)
-theme_choice = st.sidebar.radio("Thème", ("Clair", "Sombre"), index=0)
+theme_choice = st.sidebar.radio("Thème", ("Clair", "Sombre"), index=1)
 # Applique le thème (CSS + Plotly + Mapbox)
 if theme_choice == "Clair":
     # CSS clair
@@ -159,7 +159,7 @@ else:
 st.sidebar.markdown("---")
 vue = st.sidebar.radio(
     "Vue",
-    options=("🇫🇷 France métropolitaine", "🟣 Région Grand Est"),
+    options=("🇫🇷 France métropolitaine", "Région Grand Est"),
     index=0,
     help="Bascule entre la vue nationale et la vue Grand Est."
 )
@@ -342,4 +342,5 @@ Anticiper les **zones de tension grippale** et aider à la **répartition des va
  - https://www.linkedin.com/in/maxence-noizet-2a4a2526b/
  - https://www.linkedin.com/in/lenagonzalezbreton/
     """)
+
 
