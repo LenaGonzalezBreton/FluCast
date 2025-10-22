@@ -378,7 +378,7 @@ Anticiper les **zones de tension grippale** et aider à la **répartition des va
 ###  Technique
 - Python 3.11 · Prophet · Pandas · Plotly · Streamlit
 - Lancement : `streamlit run views/main-dashboard-view.py`
-    """)
+
 
 ###  L'équipe 
  - https://www.linkedin.com/in/axel-momper
@@ -386,4 +386,6 @@ Anticiper les **zones de tension grippale** et aider à la **répartition des va
  - https://www.linkedin.com/in/alexy-pinto-3b4765301/
  - https://www.linkedin.com/in/maxence-noizet-2a4a2526b/
  - https://www.linkedin.com/in/lenagonzalezbreton/
+
+    """)
 
