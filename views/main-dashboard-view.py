@@ -29,7 +29,7 @@ except Exception:
 ACCENT_COLOR = "#49C81B"
 st.set_page_config(
     page_title="Thermomètre Grippal Prédictif",
-    page_icon=Path("data/assets/Logo icon app.svg"),
+    page_icon="data/assets/logo_icon_app.svg",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -138,7 +138,7 @@ def load_geojson() -> Optional[dict]:
 st.sidebar.title("Paramètres")
 
 # Thème clair / sombre (par défaut clair)
-theme_choice = st.sidebar.radio("Thème", ("Clair", "Sombre"), index=0)
+theme_choice = st.sidebar.radio("Thème", ("Clair", "Sombre"), index=1)
 
 # Applique le thème (CSS + Plotly + Mapbox)
 if theme_choice == "Clair":
@@ -233,15 +233,14 @@ geojson = load_geojson()
 # ENTÊTE (logo + titre)
 # -----------------------------
 hdr_col_logo, hdr_col_title = st.columns([0.12, 0.88])
-logo_path = Path("data/assets/Logo icon app.png")
+logo_path = Path("data/assets/logo.png")
 with hdr_col_logo:
     if logo_path.exists():
         try:
-            st.logo(str(logo_path))  # Streamlit >= 1.29
-        except Exception:
+            st.logo(str(logo_path))
+        except Exception as e:
+            st.write(f"Erreur st.logo: {e}")  # Pour voir l'erreur
             st.image(str(logo_path), use_container_width=True)
-    else:
-        st.info("Logo introuvable au chemin indiqué.")
 
 with hdr_col_title:
     st.title("Thermomètre Grippal Prédictif — Vue unifiée (Prophet)")
