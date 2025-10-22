@@ -107,7 +107,7 @@ def load_geojson() -> Optional[dict]:
 # -----------------------------
 # SIDEBAR
 # -----------------------------
-st.sidebar.title("⚙️ Paramètres")
+st.sidebar.title("Paramètres")
 # Thème clair / sombre (par défaut clair)
 theme_choice = st.sidebar.radio("Thème", ("Clair", "Sombre"), index=0)
 # Applique le thème (CSS + Plotly + Mapbox)
@@ -211,7 +211,7 @@ if df_full.empty or df_display.empty:
 # TABS
 # -----------------------------
 tab1, tab2, tab3, tab4 = st.tabs(
-    ["🗺️ Carte & KPIs", "🏥 Analyse département", "🗺️ Analyse région", "ℹ️ À propos du projet"]
+    ["Carte & KPIs", "Analyse département", "Analyse région", "À propos du projet"]
 )
 # --- TAB 1 : Carte & KPIs ---
 with tab1:
@@ -337,17 +337,6 @@ Anticiper les **zones de tension grippale** et aider à la **répartition des va
 - Lancement : `streamlit run views/main-dashboard-view.py`
 ###  L'équipe 
  - https://www.linkedin.com/in/axel-momper
-
-    
-        
-          
-    
-
-        
-        Expand All
-    
-    @@ -387,3 +387,5 @@ def run_prophet(vue_label: str, csv_path_str: str):
-  
  - https://www.linkedin.com/in/lucas-olivarez/
  - https://www.linkedin.com/in/alexy-pinto-3b4765301/
  - https://www.linkedin.com/in/maxence-noizet-2a4a2526b/
