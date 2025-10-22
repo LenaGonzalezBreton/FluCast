@@ -40,6 +40,7 @@ NATIONAL_CSV = Path("data/clean-data/donnees_analytiques_france.csv")
 REGIONAL_CSV = Path("data/clean-data/donnees_analytiques_grand_est.csv")
 DEFAULT_LOGO = Path("data/assets/logo.png")  # logo par défaut (modifiable dans la sidebar)
 
+
 # -----------------------------
 # HELPERS
 # -----------------------------
@@ -216,7 +217,7 @@ geojson = load_geojson()
 # ENTÊTE (logo + titre)
 # -----------------------------
 hdr_col_logo, hdr_col_title = st.columns([0.12, 0.88])
-logo_path = Path(logo_path_str)
+logo_path = Path("data/assets/Logo icon app.png")
 with hdr_col_logo:
     if logo_path.exists():
         try:
@@ -227,7 +228,7 @@ with hdr_col_logo:
         st.info("Logo introuvable au chemin indiqué.")
 
 with hdr_col_title:
-    st.title("🌡️ Thermomètre Grippal Prédictif — Vue unifiée (Prophet)")
+    st.title("Thermomètre Grippal Prédictif — Vue unifiée (Prophet)")
 
 if df_full.empty or df_display.empty:
     st.error("Aucune donnée exploitable.")
@@ -237,7 +238,7 @@ if df_full.empty or df_display.empty:
 # TABS
 # -----------------------------
 tab1, tab2, tab3, tab4 = st.tabs(
-    ["🗺️ Carte & KPIs", "🏥 Analyse département", "🗺️ Analyse région", "ℹ️ À propos du projet"]
+    ["Carte & KPIs", "Analyse département", "Analyse région", "À propos du projet"]
 )
 
 # --- TAB 1 : Carte & KPIs ---
@@ -388,5 +389,6 @@ Anticiper les **zones de tension grippale** et aider à la **répartition des va
  - https://www.linkedin.com/in/lenagonzalezbreton/
 
     """)
+
 
 
