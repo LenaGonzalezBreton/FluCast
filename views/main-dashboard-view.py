@@ -1,10 +1,11 @@
 # views/main-dashboard-view.py
 # ─────────────────────────────────────────────────────────────────────────────
 # Vue unifiée : France / Grand Est — Prophet only
-# Esthétique : accent #49C81B + logo en en-tête ; carte YlOrRd
+# Esthétique : accent #49C81B + logo (header) ; carte YlOrRd ; mode Clair/Sombre
 # ─────────────────────────────────────────────────────────────────────────────
 
 import json
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
 import numpy as np
@@ -28,38 +29,9 @@ except Exception:
 ACCENT_COLOR = "#49C81B"
 st.set_page_config(
     page_title="Thermomètre Grippal Prédictif",
-    page_icon="🌡️",
+    page_icon="data/assets/logo_icon_app.svg",
     layout="wide",
     initial_sidebar_state="expanded"
-)
-
-# Thème Streamlit (onglets, metrics, boutons)
-st.markdown(
-    f"""
-    <style>
-    :root {{
-        --accent: {ACCENT_COLOR};
-    }}
-    .stTabs [data-baseweb="tab-list"] button[aria-selected="true"] {{
-        border-bottom: 3px solid var(--accent);
-        color: var(--accent);
-    }}
-    div[data-testid="stMetricValue"] {{
-        color: var(--accent);
-    }}
-    .stButton>button {{
-        background-color: var(--accent);
-        color: white !important;
-        border: none;
-        border-radius: 6px;
-    }}
-    .stButton>button:hover {{
-        background-color: #3aaa17;
-        transition: background-color 0.2s ease-in-out;
-    }}
-    </style>
-    """,
-    unsafe_allow_html=True,
 )
 
 # -----------------------------
@@ -67,7 +39,8 @@ st.markdown(
 # -----------------------------
 NATIONAL_CSV = Path("data/clean-data/donnees_analytiques_france.csv")
 REGIONAL_CSV = Path("data/clean-data/donnees_analytiques_grand_est.csv")
-DEFAULT_LOGO = Path("data/assets/logo.png")  # logo par défaut
+DEFAULT_LOGO = Path("data/assets/logo.png")  # logo par défaut (modifiable dans la sidebar)
+
 
 # -----------------------------
 # HELPERS
@@ -82,7 +55,7 @@ def coerce_schema(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     mapping = {}
     fallback = {
-        "code_departement": ["dep", "code_dep", "departement_code", "departement"],
+        "code_departement": ["dep", "code_dep", "departement_code", "departement", "code"],
         "nom_departement": ["nom", "departement_nom", "libelle_departement"],
         "annee_semaine": ["semaine", "week", "year_week"],
         "total_cas_semaine": ["total_cas", "nb_cas", "cas_total"]
@@ -106,16 +79,31 @@ def coerce_schema(df: pd.DataFrame) -> pd.DataFrame:
 def week_to_datetime(week_str: str) -> Optional[pd.Timestamp]:
     try:
         s = str(week_str)
+        year = None
+        week = None
+
+        # Format "2024-S01" ou "2024-S1"
         if "-S" in s:
             year, sw = s.split("-S")
-            return pd.to_datetime(f"{int(year)}-W{int(sw):02d}-1")
-        if "W" in s:
+            year, week = int(year), int(sw)
+        # Format "2024W01" ou "2024W1"
+        elif "W" in s:
             year, sw = s.split("W")
-            return pd.to_datetime(f"{int(year)}-W{int(sw):02d}-1")
-        if len(s) >= 6 and s[:4].isdigit():
-            year, sw = int(s[:4]), int(s[4:])
-            return pd.to_datetime(f"{year}-W{sw:02d}-1")
-    except Exception:
+            year, week = int(year), int(sw)
+        # Format "202401" (6+ chiffres)
+        elif len(s) >= 6 and s[:4].isdigit():
+            year, week = int(s[:4]), int(s[4:])
+
+        if year and week:
+            # Méthode ISO : le 4 janvier est toujours dans la semaine 1
+            jan_4 = datetime(year, 1, 4)
+            # Trouver le lundi de la semaine 1
+            week_1_monday = jan_4 - timedelta(days=jan_4.weekday())
+            # Ajouter les semaines nécessaires
+            target_date = week_1_monday + timedelta(weeks=week - 1)
+            return pd.Timestamp(target_date)
+
+    except Exception as e:
         return None
     return None
 
@@ -147,7 +135,58 @@ def load_geojson() -> Optional[dict]:
 # -----------------------------
 # SIDEBAR
 # -----------------------------
-st.sidebar.title("⚙️ Paramètres")
+st.sidebar.title("Paramètres")
+
+# Thème clair / sombre (par défaut clair)
+theme_choice = st.sidebar.radio("Thème", ("Clair", "Sombre"), index=1)
+# Applique le thème (CSS + Plotly + Mapbox)
+if theme_choice == "Clair":
+    # CSS clair
+    st.markdown(
+        f"""
+        <style>
+        :root {{ --accent: {ACCENT_COLOR}; }}
+        .stApp {{ background-color: #ffffff; color: #111827; }}
+        .stTabs [data-baseweb="tab-list"] button[aria-selected="true"] {{
+            border-bottom: 3px solid var(--accent);
+            color: var(--accent);
+        }}
+        div[data-testid="stMetricValue"] {{ color: var(--accent); }}
+        .stButton>button {{
+            background-color: var(--accent); color: white !important;
+            border: none; border-radius: 6px;
+        }}
+        .stButton>button:hover {{ background-color: #3aaa17; transition: background-color .2s; }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    px.defaults.template = "plotly"          # clair
+    MAPBOX_STYLE = "carto-positron"          # clair
+else:
+    st.markdown(
+        f"""
+        <style>
+        :root {{ --accent: {ACCENT_COLOR}; }}
+        .stApp {{ background-color: #0f172a; color: #f8fafc; }}
+        .stTabs [data-baseweb="tab-list"] button[aria-selected="true"] {{
+            border-bottom: 3px solid var(--accent);
+            color: var(--accent);
+        }}
+        div[data-testid="stMetricValue"] {{ color: var(--accent); }}
+        .stButton>button {{
+            background-color: var(--accent); color: white !important;
+            border: none; border-radius: 6px;
+        }}
+        .stButton>button:hover {{ background-color: #3aaa17; transition: background-color .2s; }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    px.defaults.template = "plotly_dark"     # sombre
+    MAPBOX_STYLE = "carto-darkmatter"        # sombre
+
+st.sidebar.markdown("---")
 
 vue = st.sidebar.radio(
     "Vue",
@@ -163,6 +202,8 @@ st.sidebar.caption("Par défaut : data/clean-data/donnees_analytiques_*.csv")
 
 st.sidebar.markdown("---")
 logo_path_str = st.sidebar.text_input("Logo (PNG/JPG)", value=str(DEFAULT_LOGO))
+
+# 🔥 NOTE : aucune case “afficher aussi le logo dans la sidebar” — supprimée.
 
 # -----------------------------
 # PIPELINE PROPHET
@@ -191,18 +232,17 @@ geojson = load_geojson()
 # ENTÊTE (logo + titre)
 # -----------------------------
 hdr_col_logo, hdr_col_title = st.columns([0.12, 0.88])
-logo_path = Path(logo_path_str)
+logo_path = Path("data/assets/logo.png")
 with hdr_col_logo:
     if logo_path.exists():
         try:
-            st.logo(str(logo_path))  # Streamlit >= 1.29
-        except Exception:
+            st.logo(str(logo_path))
+        except Exception as e:
+            st.write(f"Erreur st.logo: {e}")  # Pour voir l'erreur
             st.image(str(logo_path), use_container_width=True)
-    else:
-        st.info("Logo introuvable au chemin indiqué.")
 
 with hdr_col_title:
-    st.title("🌡️ Thermomètre Grippal Prédictif — Vue unifiée (Prophet)")
+    st.title("Thermomètre Grippal Prédictif — Vue unifiée (Prophet)")
 
 if df_full.empty or df_display.empty:
     st.error("Aucune donnée exploitable.")
@@ -212,7 +252,7 @@ if df_full.empty or df_display.empty:
 # TABS
 # -----------------------------
 tab1, tab2, tab3, tab4 = st.tabs(
-    ["🗺️ Carte & KPIs", "🏥 Analyse département", "🗺️ Analyse région", "ℹ️ À propos du projet"]
+    ["Carte & KPIs", "Analyse département", "Analyse région", "À propos du projet"]
 )
 
 # --- TAB 1 : Carte & KPIs ---
@@ -229,16 +269,15 @@ with tab1:
 
     if geojson is not None:
         map_df = df_display.dropna(subset=["score_global_predictif"]).copy()
-        # Palette YlOrRd (nuances d’orange)
         fig = px.choropleth_mapbox(
             map_df,
             geojson=geojson,
             locations="code_departement",
             featureidkey="properties.code",
             color="score_global_predictif",
-            color_continuous_scale="YlOrRd",
+            color_continuous_scale="YlOrRd",  # ✅ nuances d’orange conservées
             range_color=(0, 1),
-            mapbox_style="carto-positron",
+            mapbox_style=MAPBOX_STYLE,        # clair/sombre selon le thème
             zoom=4.8 if vue.startswith("🇫🇷") else 6.5,
             center={"lat": 46.6, "lon": 2.4} if vue.startswith("🇫🇷") else {"lat": 48.6, "lon": 6.1},
             opacity=0.75,
@@ -264,6 +303,7 @@ with tab2:
     dep_code = df_display.loc[df_display["nom_departement"] == dep_name, "code_departement"].iloc[0]
     df_dep = df_full[df_full["code_departement"] == dep_code].copy()
     df_dep["_week_date"] = df_dep["annee_semaine"].apply(week_to_datetime)
+    df_dep = df_dep[df_dep["_week_date"].notna()].copy()
     df_dep = df_dep.sort_values("_week_date")
 
     row = df_display[df_display["code_departement"] == dep_code].iloc[0]
@@ -338,20 +378,33 @@ with tab4:
     st.markdown(f"""
 Ce projet a été réalisé dans le cadre du **Hackathon Santé Datalab x EPITECH**.
 
-### 🎯 Objectif
+###  Objectif
 Anticiper les **zones de tension grippale** et aider à la **répartition des vaccins** en temps réel.
 
-### 🧠 Méthodologie
+###  Méthodologie
 - Modélisation **Prophet** par département.
 - Score global basé sur les cas prédits et la vulnérabilité vaccinale.
 - Visualisation interactive via **Streamlit + Plotly**.
 
-### 🎨 Identité visuelle
+###  Identité visuelle
 - Accent couleur : **{ACCENT_COLOR}**
-- Carte : **nuances d’orange (YlOrRd)** cohérentes avec la tension.
-- Logo personnalisable (PNG/JPG) via la sidebar.
+- Carte : **nuances d’orange (YlOrRd)** cohérentes avec l’indicateur de tension.
+- Logo en-tête (modifiable via la sidebar). Mode **{theme_choice.lower()}** actif.
 
-### ⚙️ Technique
+###  Technique
 - Python 3.11 · Prophet · Pandas · Plotly · Streamlit
 - Lancement : `streamlit run views/main-dashboard-view.py`
+
+
+###  L'équipe 
+ - https://www.linkedin.com/in/axel-momper
+ - https://www.linkedin.com/in/lucas-olivarez/
+ - https://www.linkedin.com/in/alexy-pinto-3b4765301/
+ - https://www.linkedin.com/in/maxence-noizet-2a4a2526b/
+ - https://www.linkedin.com/in/lenagonzalezbreton/
+
     """)
+
+
+
+
