@@ -403,17 +403,50 @@ Anticiper les **zones de tension grippale** et aider à la **répartition des va
  - https://www.linkedin.com/in/lenagonzalezbreton/
     """)
 
+    st.markdown("---")
+
+    # Afficher le PDF avec un bouton de téléchargement + aperçu intégré
     pdf_path = Path("data/presentation_flucast.pdf")
 
     if pdf_path.exists():
+        col1, col2 = st.columns([1, 3])
+
+        with col1:
+            # Bouton de téléchargement (fonctionne sur tous les navigateurs)
+            with open(pdf_path, "rb") as pdf_file:
+                st.download_button(
+                    label="📥 Télécharger le PDF",
+                    data=pdf_file,
+                    file_name="presentation_flucast.pdf",
+                    mime="application/pdf",
+                    use_container_width=True
+                )
+
+        with col2:
+            st.caption("💡 Téléchargez le PDF pour le consulter dans votre lecteur préféré")
+
+        # Afficher un aperçu intégré (fonctionne dans la même page)
+        st.markdown("### 📄 Aperçu de la présentation")
+
         with open(pdf_path, "rb") as f:
             base64_pdf = base64.b64encode(f.read()).decode('utf-8')
 
-        # Créer un lien qui ouvre le PDF encodé en base64
-        pdf_link = f'<a href="data:application/pdf;base64,{base64_pdf}" target="_blank">📄 Ouvrir la présentation PowerPoint en format PDF</a>'
-        st.markdown(pdf_link, unsafe_allow_html=True)
+        # Iframe intégré dans la page (pas de nouvel onglet = pas de blocage)
+        pdf_display = f'''
+        <iframe 
+            src="data:application/pdf;base64,{base64_pdf}" 
+            width="100%" 
+            height="800px" 
+            type="application/pdf"
+            style="border: 1px solid #ddd; border-radius: 8px;">
+            <p>Votre navigateur ne supporte pas l'affichage des PDF. 
+            <a href="data:application/pdf;base64,{base64_pdf}" download="presentation_flucast.pdf">
+            Téléchargez le PDF ici</a>.</p>
+        </iframe>
+        '''
+        st.markdown(pdf_display, unsafe_allow_html=True)
     else:
-        st.error("Le fichier PDF est introuvable.")
+        st.error("⚠️ Le fichier PDF est introuvable.")
 
 
 
