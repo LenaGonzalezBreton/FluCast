@@ -139,7 +139,6 @@ st.sidebar.title("Paramètres")
 
 # Thème clair / sombre (par défaut clair)
 theme_choice = st.sidebar.radio("Thème", ("Clair", "Sombre"), index=1)
-
 # Applique le thème (CSS + Plotly + Mapbox)
 if theme_choice == "Clair":
     # CSS clair
