@@ -362,20 +362,28 @@ with tab4:
     st.markdown(f"""
 Ce projet a été réalisé dans le cadre du **Hackathon Santé Datalab x EPITECH**.
 
-### 🎯 Objectif
+###  Objectif
 Anticiper les **zones de tension grippale** et aider à la **répartition des vaccins** en temps réel.
 
-### 🧠 Méthodologie
+###  Méthodologie
 - Modélisation **Prophet** par département.
 - Score global basé sur les cas prédits et la vulnérabilité vaccinale.
 - Visualisation interactive via **Streamlit + Plotly**.
 
-### 🎨 Identité visuelle
+###  Identité visuelle
 - Accent couleur : **{ACCENT_COLOR}**
 - Carte : **nuances d’orange (YlOrRd)** cohérentes avec l’indicateur de tension.
 - Logo en-tête (modifiable via la sidebar). Mode **{theme_choice.lower()}** actif.
 
-### ⚙️ Technique
+###  Technique
 - Python 3.11 · Prophet · Pandas · Plotly · Streamlit
 - Lancement : `streamlit run views/main-dashboard-view.py`
     """)
+
+###  L'équipe 
+ - https://www.linkedin.com/in/axel-momper
+ - https://www.linkedin.com/in/lucas-olivarez/
+ - https://www.linkedin.com/in/alexy-pinto-3b4765301/
+ - https://www.linkedin.com/in/maxence-noizet-2a4a2526b/
+ - https://www.linkedin.com/in/lenagonzalezbreton/
+
