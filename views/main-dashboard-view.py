@@ -5,6 +5,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 
 import json
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
 import numpy as np
@@ -78,16 +79,31 @@ def coerce_schema(df: pd.DataFrame) -> pd.DataFrame:
 def week_to_datetime(week_str: str) -> Optional[pd.Timestamp]:
     try:
         s = str(week_str)
+        year = None
+        week = None
+
+        # Format "2024-S01" ou "2024-S1"
         if "-S" in s:
             year, sw = s.split("-S")
-            return pd.to_datetime(f"{int(year)}-W{int(sw):02d}-1")
-        if "W" in s:
+            year, week = int(year), int(sw)
+        # Format "2024W01" ou "2024W1"
+        elif "W" in s:
             year, sw = s.split("W")
-            return pd.to_datetime(f"{int(year)}-W{int(sw):02d}-1")
-        if len(s) >= 6 and s[:4].isdigit():
-            year, sw = int(s[:4]), int(s[4:])
-            return pd.to_datetime(f"{year}-W{sw:02d}-1")
-    except Exception:
+            year, week = int(year), int(sw)
+        # Format "202401" (6+ chiffres)
+        elif len(s) >= 6 and s[:4].isdigit():
+            year, week = int(s[:4]), int(s[4:])
+
+        if year and week:
+            # Méthode ISO : le 4 janvier est toujours dans la semaine 1
+            jan_4 = datetime(year, 1, 4)
+            # Trouver le lundi de la semaine 1
+            week_1_monday = jan_4 - timedelta(days=jan_4.weekday())
+            # Ajouter les semaines nécessaires
+            target_date = week_1_monday + timedelta(weeks=week - 1)
+            return pd.Timestamp(target_date)
+
+    except Exception as e:
         return None
     return None
 
@@ -289,6 +305,7 @@ with tab2:
     dep_code = df_display.loc[df_display["nom_departement"] == dep_name, "code_departement"].iloc[0]
     df_dep = df_full[df_full["code_departement"] == dep_code].copy()
     df_dep["_week_date"] = df_dep["annee_semaine"].apply(week_to_datetime)
+    df_dep = df_dep[df_dep["_week_date"].notna()].copy()
     df_dep = df_dep.sort_values("_week_date")
 
     row = df_display[df_display["code_departement"] == dep_code].iloc[0]
