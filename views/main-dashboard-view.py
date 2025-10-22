@@ -203,7 +203,7 @@ with hdr_col_logo:
     else:
         st.info("Logo introuvable au chemin indiqué.")
 with hdr_col_title:
-    st.title("🌡️ Thermomètre Grippal Prédictif — Vue unifiée (Prophet)")
+    st.title("Thermomètre Grippal Prédictif — Vue unifiée (Prophet)")
 if df_full.empty or df_display.empty:
     st.error("Aucune donnée exploitable.")
     st.stop()
@@ -342,3 +342,4 @@ Anticiper les **zones de tension grippale** et aider à la **répartition des va
  - https://www.linkedin.com/in/maxence-noizet-2a4a2526b/
  - https://www.linkedin.com/in/lenagonzalezbreton/
     """)
+
